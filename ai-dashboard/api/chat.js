@@ -421,17 +421,19 @@ Use America/Chicago timezone. If no end time given, add 1 hour. Today is ${new D
       }
     }
 
-    // Fetch user profile for additional context
+    // Fetch user profile for additional context (inline to avoid separate function)
     let userProfileContent = '';
     try {
-      const baseUrl = process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'https://jimmy-ai-assistant.vercel.app';
-      const profileRes = await fetch(`${baseUrl}/api/user-profile`);
-      const profileData = await profileRes.json();
-      if (profileData.profile) {
-        userProfileContent = `\n\n--- USER PROFILE ---\n${profileData.profile}\n--- END USER PROFILE ---`;
+      const fs = await import('fs');
+      const path = await import('path');
+      const profilePath = path.join(process.cwd(), '..', 'user-profile.md');
+      
+      if (fs.existsSync(profilePath)) {
+        const profileData = fs.readFileSync(profilePath, 'utf-8');
+        userProfileContent = `\n\n--- USER PROFILE ---\n${profileData}\n--- END USER PROFILE ---`;
       }
     } catch (e) {
-      console.log('Could not fetch user profile:', e.message);
+      console.log('Could not read user profile:', e.message);
     }
 
     // Use Groq for general conversation
