@@ -6,6 +6,7 @@ mod agent;
 mod groq_client;
 mod memory;
 mod vapi_server;
+mod web_search;
 
 use agent::Agent;
 use vapi_server::VapiServer;
@@ -61,7 +62,7 @@ async fn main() -> anyhow::Result<()> {
         }
         Some(Commands::Server { port }) => {
             let groq_client = crate::groq_client::GroqClient::new()?;
-            let vapi_server = VapiServer::new(groq_client);
+            let vapi_server = VapiServer::new(groq_client)?;
             vapi_server.start(port).await?;
         }
         None => {
@@ -131,5 +132,11 @@ fn print_help() {
     println!("  clear  - Clear the screen");
     println!("  exit   - Exit the chat");
     println!("  quit   - Exit the chat");
+    println!();
+    println!("Web search is automatic — just ask about current events, weather, news, prices, etc.");
+    println!("Memory commands:");
+    println!("  remember [info]    - Save something to memory");
+    println!("  search [query]     - Search your stored memories");
+    println!("  recent memories    - Show recently saved memories");
     println!();
 }
