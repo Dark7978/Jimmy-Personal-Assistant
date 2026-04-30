@@ -1,43 +1,49 @@
 {
   "owner": "Brayden Clarkson",
-  "location": {
-    "city": "Your City",
-    "state": "Your State",
-    "country": "USA",
-    "zipCode": "Your ZIP",
-    "coordinates": {
-      "latitude": 0.0,
-      "longitude": 0.0
-    },
-    "timezone": "America/Chicago"
+  "personalInformation": {
+    "name": "Brayden Clarkson",
+    "timezone": "America/Chicago",
+    "timezoneLabel": "Central Time",
+    "location": "Alpha Kentucky",
+    "primaryPhone": "3525404568",
+    "email": "brayden9181@gmail.com"
   },
   "preferences": {
-    "searchRadiusMiles": 10,
-    "preferredTransportation": "driving",
-    "language": "en"
+    "communicationStyle": "Concise, friendly, not too formal",
+    "scheduleManagement": "Prefers to stay on top of schedule",
+    "appointments": "Hates missing appointments",
+    "workStyle": "Likes efficiency and directness"
   },
-  "frequentLocations": {
-    "home": {
-      "name": "Home",
-      "address": "Your Home Address",
-      "coordinates": {
-        "latitude": 0.0,
-        "longitude": 0.0
-      }
-    },
-    "work": {
-      "name": "Work",
-      "address": "Your Work Address",
-      "coordinates": {
-        "latitude": 0.0,
-        "longitude": 0.0
-      }
-    }
+  "aiContext": {
+    "thingsAIShouldKnow": [
+      "Built this AI assistant dashboard himself",
+      "Uses Vapi.ai for voice calls",
+      "Google Calendar is primary calendar",
+      "Lives in Central Time zone",
+      "Goes by 'Brayden'"
+    ],
+    "instructions": [
+      "Always reference this profile when making decisions",
+      "Use timezone information for scheduling",
+      "Be proactive about reminders",
+      "Ask for clarification if unsure about preferences",
+      "Keep responses concise and friendly"
+    ]
   },
-  "businessPreferences": {
-    "favoriteChains": [],
-    "avoidedChains": [],
-    "preferredCuisines": []
+  "currentGoals": {
+    "objective": "Trying to earn money",
+    "massiveProject": "Tazchat - A Chatting app"
   },
-  "notes": "Update this file with your actual location information. Get coordinates from Google Maps by right-clicking on your location."
+  "importantContacts": {
+    "mom": "7658103263",
+    "dad": "7564653046"
+  },
+  "businessInformation": {
+    "company": "Tazchat",
+    "role": "CEO"
+  },
+  "metadata": {
+    "lastUpdated": "4/29/2026",
+    "version": "1.0"
+  }
 }
