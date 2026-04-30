@@ -24,14 +24,14 @@
     "api/sms.js": {
       "maxDuration": 10
     },
-    "api/sms-webhook.js": {
-      "maxDuration": 10
-    },
     "api/web-search.js": {
       "maxDuration": 15
     },
     "api/calendar-tool.js": {
       "maxDuration": 15
+    },
+    "api/google-auth.js": {
+      "maxDuration": 10
     }
   },
   "outputDirectory": "."
