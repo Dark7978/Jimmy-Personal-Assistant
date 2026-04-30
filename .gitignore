@@ -1,0 +1,31 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Agent specific
+memory.db
+agent_state.json
+conversation_history/
+models/
+*.gguf
+*.bin
+
+# Logs
+*.log
+logs/

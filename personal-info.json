@@ -1,0 +1,43 @@
+{
+  "owner": "Brayden Clarkson",
+  "location": {
+    "city": "Your City",
+    "state": "Your State",
+    "country": "USA",
+    "zipCode": "Your ZIP",
+    "coordinates": {
+      "latitude": 0.0,
+      "longitude": 0.0
+    },
+    "timezone": "America/Chicago"
+  },
+  "preferences": {
+    "searchRadiusMiles": 10,
+    "preferredTransportation": "driving",
+    "language": "en"
+  },
+  "frequentLocations": {
+    "home": {
+      "name": "Home",
+      "address": "Your Home Address",
+      "coordinates": {
+        "latitude": 0.0,
+        "longitude": 0.0
+      }
+    },
+    "work": {
+      "name": "Work",
+      "address": "Your Work Address",
+      "coordinates": {
+        "latitude": 0.0,
+        "longitude": 0.0
+      }
+    }
+  },
+  "businessPreferences": {
+    "favoriteChains": [],
+    "avoidedChains": [],
+    "preferredCuisines": []
+  },
+  "notes": "Update this file with your actual location information. Get coordinates from Google Maps by right-clicking on your location."
+}

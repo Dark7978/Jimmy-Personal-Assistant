@@ -1,0 +1,38 @@
+{
+  "functions": {
+    "api/chat.js": {
+      "maxDuration": 30
+    },
+    "api/make-call.js": {
+      "maxDuration": 10
+    },
+    "api/schedule-callback.js": {
+      "maxDuration": 60
+    },
+    "api/webhook.js": {
+      "maxDuration": 10
+    },
+    "api/transfer.js": {
+      "maxDuration": 10
+    },
+    "api/async-task.js": {
+      "maxDuration": 60
+    },
+    "api/contacts.js": {
+      "maxDuration": 10
+    },
+    "api/sms.js": {
+      "maxDuration": 10
+    },
+    "api/sms-webhook.js": {
+      "maxDuration": 10
+    },
+    "api/web-search.js": {
+      "maxDuration": 15
+    },
+    "api/calendar-tool.js": {
+      "maxDuration": 15
+    }
+  },
+  "outputDirectory": "."
+}

@@ -1,0 +1,30 @@
+# Core dependencies
+python-dotenv>=1.0.0
+groq>=0.4.1
+requests>=2.31.0
+
+# Optional: Local model support
+ctransformers>=0.2.27
+
+# Data handling
+sqlite3
+json5>=0.9.14
+
+# Web scraping (if needed)
+beautifulsoup4>=4.12.0
+selenium>=4.15.0
+
+# File operations
+pathlib2>=2.3.7
+
+# Async support
+asyncio
+aiohttp>=3.9.0
+
+# CLI interface
+click>=8.1.0
+rich>=13.6.0
+
+# Development
+pytest>=7.4.0
+black>=23.9.0

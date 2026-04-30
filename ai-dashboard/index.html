@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brayden's AI Assistant Dashboard</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .chat-container {
+            height: calc(100vh - 200px);
+        }
+        .message-bubble {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .typing-indicator {
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        function Dashboard() {
+            const [isAuthenticated, setIsAuthenticated] = useState(false);
+            const [password, setPassword] = useState('');
+            const [messages, setMessages] = useState([]);
+            const [inputMessage, setInputMessage] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+            const [scheduledCalls, setScheduledCalls] = useState([]);
+            const [showScheduleForm, setShowScheduleForm] = useState(false);
+            const [scheduleForm, setScheduleForm] = useState({
+                name: '',
+                phone: '',
+                message: '',
+                datetime: ''
+            });
+            const messagesEndRef = useRef(null);
+
+            const correctPassword = 'brayden123'; // Change this to your preferred password
+
+            useEffect(() => {
+                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, [messages]);
+
+            const handleLogin = (e) => {
+                e.preventDefault();
+                if (password === correctPassword) {
+                    setIsAuthenticated(true);
+                    addMessage('system', 'Welcome back, Brayden! I can make calls, manage your calendar (add/delete events), search Google, and set call reminders before events. What do you need?');
+                } else {
+                    addMessage('system', 'Incorrect password. Please try again.', 'error');
+                }
+            };
+
+            const addMessage = (sender, text, type = 'normal') => {
+                setMessages(prev => [...prev, { sender, text, type, timestamp: new Date() }]);
+            };
+
+            const processMessage = async (message) => {
+                setIsLoading(true);
+                addMessage('user', message);
+
+                try {
+                    const response = await fetch('/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            message: message,
+                            conversationHistory: messages.filter(m => m.sender !== 'system').map(m => ({
+                                role: m.sender === 'user' ? 'user' : 'assistant',
+                                content: m.text
+                            }))
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        addMessage('assistant', data.response);
+                        
+                        // Handle special actions
+                        if (data.action === 'schedule_prompt') {
+                            setShowScheduleForm(true);
+                        }
+                    } else {
+                        addMessage('assistant', 'Sorry, I had trouble processing that. Please try again.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Chat error:', error);
+                    addMessage('assistant', 'Network error. Please check your connection and try again.', 'error');
+                }
+
+                setIsLoading(false);
+            };
+
+            const extractName = (message) => {
+                const names = ['mom', 'dad', 'sarah', 'john', 'mike', 'lisa', 'tom', 'jane'];
+                const lowerMessage = message.toLowerCase();
+                for (const name of names) {
+                    if (lowerMessage.includes(name)) {
+                        return name.charAt(0).toUpperCase() + name.slice(1);
+                    }
+                }
+                return null;
+            };
+
+            const makeCall = async (phoneNumber, name) => {
+                try {
+                    const response = await fetch('/api/make-call', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ phoneNumber, name })
+                    });
+
+                    if (response.ok) {
+                        addMessage('assistant', `✅ Call initiated to ${name} at ${phoneNumber}! They should receive a call from your AI assistant shortly.`);
+                    } else {
+                        addMessage('assistant', `❌ Sorry, I couldn't make the call. Please check the phone number and try again.`, 'error');
+                    }
+                } catch (error) {
+                    addMessage('assistant', `❌ Network error. Please try again.`, 'error');
+                }
+            };
+
+            const handleScheduleCall = (e) => {
+                e.preventDefault();
+                const newCall = {
+                    ...scheduleForm,
+                    id: Date.now(),
+                    status: 'scheduled'
+                };
+                setScheduledCalls(prev => [...prev, newCall]);
+                addMessage('assistant', `✅ Call scheduled to ${scheduleForm.name} at ${scheduleForm.phone} for ${new Date(scheduleForm.datetime).toLocaleString()}`);
+                setShowScheduleForm(false);
+                setScheduleForm({ name: '', phone: '', message: '', datetime: '' });
+            };
+
+            if (!isAuthenticated) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center bg-gray-900">
+                        <div className="bg-gray-800 p-8 rounded-lg shadow-2xl w-96">
+                            <h1 className="text-2xl font-bold mb-6 text-center">
+                                <i className="fas fa-robot mr-2"></i>
+                                AI Assistant Dashboard
+                            </h1>
+                            <form onSubmit={handleLogin}>
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium mb-2">Password</label>
+                                    <input
+                                        type="password"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="w-full px-3 py-2 bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="Enter password"
+                                        required
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    className="w-full bg-blue-600 hover:bg-blue-700 py-2 px-4 rounded-md transition duration-200"
+                                >
+                                    Login
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="flex h-screen bg-gray-900">
+                    {/* Sidebar */}
+                    <div className="w-64 bg-gray-800 p-4 border-r border-gray-700">
+                        <h2 className="text-xl font-bold mb-6">
+                            <i className="fas fa-robot mr-2"></i>
+                            AI Assistant
+                        </h2>
+                        
+                        <div className="mb-6">
+                            <h3 className="text-sm font-semibold text-gray-400 mb-2">Quick Actions</h3>
+                            <button
+                                onClick={() => setShowScheduleForm(true)}
+                                className="w-full bg-green-600 hover:bg-green-700 py-2 px-4 rounded-md mb-2 transition duration-200"
+                            >
+                                <i className="fas fa-calendar-plus mr-2"></i>
+                                Schedule Call
+                            </button>
+                            <button
+                                onClick={() => { setInputMessage('What\'s on my calendar?'); }}
+                                className="w-full bg-blue-600 hover:bg-blue-700 py-2 px-4 rounded-md mb-2 transition duration-200"
+                            >
+                                <i className="fas fa-calendar mr-2"></i>
+                                View Calendar
+                            </button>
+                            <button
+                                onClick={() => { setInputMessage('Search Google for '); }}
+                                className="w-full bg-purple-600 hover:bg-purple-700 py-2 px-4 rounded-md mb-2 transition duration-200"
+                            >
+                                <i className="fas fa-search mr-2"></i>
+                                Google Search
+                            </button>
+                            <button
+                                onClick={() => setInputMessage('Show scheduled calls')}
+                                className="w-full bg-gray-600 hover:bg-gray-700 py-2 px-4 rounded-md transition duration-200"
+                            >
+                                <i className="fas fa-list mr-2"></i>
+                                View Schedule
+                            </button>
+                        </div>
+
+                        <div>
+                            <h3 className="text-sm font-semibold text-gray-400 mb-2">Phone Number</h3>
+                            <div className="bg-gray-700 p-3 rounded-md">
+                                <i className="fas fa-phone mr-2"></i>
+                                +1 (605) 815 1112
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Main Chat Area */}
+                    <div className="flex-1 flex flex-col">
+                        <div className="bg-gray-800 p-4 border-b border-gray-700">
+                            <h1 className="text-xl font-bold">AI Assistant Chat</h1>
+                            <p className="text-sm text-gray-400">Calls · Calendar · Google Search · Reminders</p>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-4 chat-container">
+                            {messages.map((msg, index) => (
+                                <div key={index} className={`mb-4 message-bubble ${msg.sender === 'user' ? 'text-right' : 'text-left'}`}>
+                                    <div className={`inline-block max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                                        msg.sender === 'user' ? 'bg-blue-600' : 
+                                        msg.sender === 'system' ? 'bg-gray-700' : 
+                                        msg.type === 'error' ? 'bg-red-600' : 'bg-gray-600'
+                                    }`}>
+                                        <p className="text-sm whitespace-pre-line">{msg.text}</p>
+                                        <p className="text-xs opacity-70 mt-1">
+                                            {msg.timestamp.toLocaleTimeString()}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                            {isLoading && (
+                                <div className="text-left mb-4">
+                                    <div className="inline-block bg-gray-600 px-4 py-2 rounded-lg typing-indicator">
+                                        <i className="fas fa-ellipsis-h"></i> Thinking...
+                                    </div>
+                                </div>
+                            )}
+                            <div ref={messagesEndRef} />
+                        </div>
+
+                        <div className="bg-gray-800 p-4 border-t border-gray-700">
+                            <form onSubmit={(e) => { e.preventDefault(); processMessage(inputMessage); setInputMessage(''); }}>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        value={inputMessage}
+                                        onChange={(e) => setInputMessage(e.target.value)}
+                                        className="flex-1 px-4 py-2 bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        placeholder="Type your message..."
+                                        disabled={isLoading}
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={isLoading || !inputMessage.trim()}
+                                        className="bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-md transition duration-200 disabled:opacity-50"
+                                    >
+                                        <i className="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    {/* Schedule Call Modal */}
+                    {showScheduleForm && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="bg-gray-800 p-6 rounded-lg w-96">
+                                <h3 className="text-xl font-bold mb-4">Schedule a Call</h3>
+                                <form onSubmit={handleScheduleCall}>
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium mb-2">Name</label>
+                                        <input
+                                            type="text"
+                                            value={scheduleForm.name}
+                                            onChange={(e) => setScheduleForm({...scheduleForm, name: e.target.value})}
+                                            className="w-full px-3 py-2 bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium mb-2">Phone Number</label>
+                                        <input
+                                            type="tel"
+                                            value={scheduleForm.phone}
+                                            onChange={(e) => setScheduleForm({...scheduleForm, phone: e.target.value})}
+                                            className="w-full px-3 py-2 bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium mb-2">Message</label>
+                                        <textarea
+                                            value={scheduleForm.message}
+                                            onChange={(e) => setScheduleForm({...scheduleForm, message: e.target.value})}
+                                            className="w-full px-3 py-2 bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            rows="2"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium mb-2">Date & Time</label>
+                                        <input
+                                            type="datetime-local"
+                                            value={scheduleForm.datetime}
+                                            onChange={(e) => setScheduleForm({...scheduleForm, datetime: e.target.value})}
+                                            className="w-full px-3 py-2 bg-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            required
+                                        />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            type="submit"
+                                            className="flex-1 bg-green-600 hover:bg-green-700 py-2 px-4 rounded-md transition duration-200"
+                                        >
+                                            Schedule
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowScheduleForm(false)}
+                                            className="flex-1 bg-gray-600 hover:bg-gray-700 py-2 px-4 rounded-md transition duration-200"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<Dashboard />, document.getElementById('root'));
+    </script>
+</body>
+</html>

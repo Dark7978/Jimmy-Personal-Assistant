@@ -1,0 +1,26 @@
+{
+  "name": "ai-assistant-dashboard",
+  "version": "1.0.0",
+  "description": "Secure web dashboard for Brayden's AI Assistant",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "build": "echo 'No build step required'",
+    "start": "vercel dev"
+  },
+  "dependencies": {
+    "@vercel/functions": "^3.4.4"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
+  "keywords": [
+    "vercel",
+    "ai",
+    "assistant",
+    "dashboard",
+    "vapi"
+  ],
+  "author": "",
+  "license": "MIT"
+}
