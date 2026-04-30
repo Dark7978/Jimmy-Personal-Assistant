@@ -154,7 +154,9 @@ Available commands:
 
 Current date: {}
 
-Be helpful, concise, and friendly. If the user shares personal information, acknowledge it naturally.",
+Be helpful, concise, and friendly. If the user shares personal information, acknowledge it naturally.
+
+IMPORTANT: When the user asks for their personal information (email, phone, etc.) that has been remembered, simply share it from memory. You may ask verification questions using information the user would know (like their name, phone number, or other details they've shared), but NEVER ask for a password or authentication code that the user wouldn't know. Do NOT make up unknown password requirements.",
             chrono::Utc::now().format("%Y-%m-%d")
         )
     }
